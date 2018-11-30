@@ -195,5 +195,4 @@ ui <- dashboardPage(
     )
   )
 )
-head(faithful)
 shinyApp(ui = ui, server = server)
