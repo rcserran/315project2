@@ -149,6 +149,7 @@ ui <- dashboardPage(
       )
     ),
     tabItem(tabName = "b",
+            tabsetPanel(type = "tabs", tabPanel("Scatterplot",
             fluidRow(
               box(
                 checkboxInput(inputId = "trend_line",
@@ -164,7 +165,8 @@ ui <- dashboardPage(
                                                          value = FALSE)
                           )
                         )
-                      ),
+                      )),
+            tabPanel("2-D Density",
               fluidRow(
                   box(
                           checkboxInput(inputId = "contour_lines",
@@ -191,7 +193,9 @@ ui <- dashboardPage(
                           )
                         )
                       )
+            )
              )
+    )
     )
   )
 )
