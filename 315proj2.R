@@ -183,7 +183,7 @@ server <- function(input, output) {
     plot_geo(goals_sub) %>%
       add_trace(
         z = ~awayGoals, color = ~awayGoals,
-        text = ~homeCode, locations = ~homeCode, marker = list(line = l)
+        text = ~awayCode, locations = ~homeCode, marker = list(line = l)
       ) %>%
       colorbar(title = 'Number of Goals') %>%
       layout(
