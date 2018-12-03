@@ -3,6 +3,7 @@ library(shiny)
 library(shinythemes)
 library(tidyverse)
 library(shinydashboard)
+library(countrycode)
 
 # read in data
 fifa <- read_csv(paste("https://storage.googleapis.com/kaggle-datasets/19728/29747/WorldCupMatches.csv",
@@ -56,6 +57,10 @@ goals <- data.frame(first = c(fifa$`Half-time Home Goals`, fifa$`Half-time Away 
                     second = c(fifa$`Home Team Goals` - fifa$`Half-time Home Goals`,
                                fifa$`Away Team Goals` - fifa$`Half-time Away Goals`),
                     total = c(fifa$`Home Team Goals`, fifa$`Away Team Goals`),
+                    homeGoals = c(fifa$`Home Team Goals`),
+                    awayGoals = c(fifa$`Away Team Goals`),
+                    homeCode = countrycode(fifa$`Home Team Name`, 'country.name', 'iso3c'),
+                    awayCode = countrycode(fifa$`Away Team Name`, 'country.name', 'iso3c'),
                     round = c(fifa$Stage, fifa$Stage),
                     team = c(fifa$`Home Team Name`, fifa$`Away Team Name`),
                     year = c(fifa$Year, fifa$Year))
@@ -97,11 +102,95 @@ goals$continent <- ifelse(goals$team %in% c("France", "Yugoslavia", "Romania",
 
 
 server <- function(input, output) {
-  output$map_goals_scored <- renderPlot({
-    # code for choropleth of goals scored
+  output$map_goals_scored <- renderPlotly({
+    goals_sub <- goals
+    if(!input$scored_group) {
+      goals_sub <- goals_sub[goals_sub$round != "Group Stage",]
+    }
+    if(!input$scored_ro16) {
+      goals_sub <- goals_sub[goals_sub$round != "Round of 16",]
+    }
+    if(!input$scored_quarter) {
+      goals_sub <- goals_sub[goals_sub$round != "Quarter-finals",]
+    }
+    if(!input$scored_semi) {
+      goals_sub <- goals_sub[goals_sub$round != "Semi-finals",]
+    }
+    if(!input$scored_third) {
+      goals_sub <- goals_sub[goals_sub$round != "Third Place",]
+    }
+    if(!input$scored_final) {
+      goals_sub <- goals_sub[goals_sub$round != "Final",]
+    }
+    # light grey boundaries
+    l <- list(color = toRGB("grey"), 
+              width = 0.5)
+    
+    # specify map projection/options
+    g <- list(
+      showframe = FALSE,
+      showcoastlines = FALSE,
+      projection = list(type = 'Mercator')
+    )
+    
+    l2 <- list(font = list(size = 4))
+    
+    plot_geo(goals_sub) %>%
+      add_trace(
+        z = ~homeGoals, color = ~homeGoals,
+        text = ~homeCode, locations = ~homeCode, marker = list(line = l)
+      ) %>%
+      colorbar(title = 'Number of Goals') %>%
+      layout(
+        title = 'Goals Scored by Home Team',
+        geo = g,
+        legend = l2
+      ) 
   })
-  output$map_goals_conceded <- renderPlot({
-    # code for choropleth of goals conceded
+  output$map_goals_conceded <- renderPlotly({
+    goals_sub <- goals
+    if(!input$conceded_group) {
+      goals_sub <- goals_sub[goals_sub$round != "Group Stage",]
+    }
+    if(!input$conceded_ro16) {
+      goals_sub <- goals_sub[goals_sub$round != "Round of 16",]
+    }
+    if(!input$conceded_quarter) {
+      goals_sub <- goals_sub[goals_sub$round != "Quarter-finals",]
+    }
+    if(!input$conceded_semi) {
+      goals_sub <- goals_sub[goals_sub$round != "Semi-finals",]
+    }
+    if(!input$conceded_third) {
+      goals_sub <- goals_sub[goals_sub$round != "Third Place",]
+    }
+    if(!input$conceded_final) {
+      goals_sub <- goals_sub[goals_sub$round != "Final",]
+    }
+    # light grey boundaries
+    l <- list(color = toRGB("grey"), 
+              width = 0.5)
+    
+    # specify map projection/options
+    g <- list(
+      showframe = FALSE,
+      showcoastlines = FALSE,
+      projection = list(type = 'Mercator')
+    )
+    
+    l2 <- list(font = list(size = 4))
+    
+    plot_geo(goals_sub) %>%
+      add_trace(
+        z = ~awayGoals, color = ~awayGoals,
+        text = ~homeCode, locations = ~homeCode, marker = list(line = l)
+      ) %>%
+      colorbar(title = 'Number of Goals') %>%
+      layout(
+        title = 'Goals Scored by Away Team',
+        geo = g,
+        legend = l2
+      ) 
   })
   output$time_series_attendance <- renderPlot({
     # code for time series of attendance
@@ -225,24 +314,63 @@ ui <- dashboardPage(
     tabItems(
       tabItem(
         tabName = "goal_map", tabsetPanel(type = "tabs", tabPanel(title = "Goals Scored",
-        fluidRow(
-          # code for map of goals scored
-        )
-      ),
-      tabPanel(title = "Goals Conceded",
-               fluidRow(
-                 # code for map of goals conceded
-               )))),
+                                                                  fluidRow(
+                                                                    box(plotOutput(outputId = "map_goals_scored", height = "500px")),
+                                                                    box(
+                                                                      checkboxInput(inputId = "scored_group",
+                                                                                    label = "Group Stage",
+                                                                                    value = TRUE),
+                                                                      checkboxInput(inputId = "scored_ro16",
+                                                                                    label = "Round of 16",
+                                                                                    value = TRUE),
+                                                                      checkboxInput(inputId = "scored_quarter",
+                                                                                    label = "Quarter-finals",
+                                                                                    value = TRUE),
+                                                                      checkboxInput(inputId = "scored_semi",
+                                                                                    label = "Semi-finals",
+                                                                                    value = TRUE),
+                                                                      checkboxInput(inputId = "scored_third",
+                                                                                    label = "Third Place",
+                                                                                    value = TRUE),
+                                                                      checkboxInput(inputId = "scored_final",
+                                                                                    label = "Final",
+                                                                                    value = TRUE))
+                                                                  
+                                                                  )
+        ),
+        tabPanel(title = "Goals Conceded",
+                 fluidRow(
+                   box(plotOutput(outputId = "map_goals_conceded", height = "500px")),
+                   box(
+                     checkboxInput(inputId = "conceded_group",
+                                   label = "Group Stage",
+                                   value = TRUE),
+                     checkboxInput(inputId = "conceded_ro16",
+                                   label = "Round of 16",
+                                   value = TRUE),
+                     checkboxInput(inputId = "conceded_quarter",
+                                   label = "Quarter-finals",
+                                   value = TRUE),
+                     checkboxInput(inputId = "conceded_semi",
+                                   label = "Semi-finals",
+                                   value = TRUE),
+                     checkboxInput(inputId = "conceded_third",
+                                   label = "Third Place",
+                                   value = TRUE),
+                     checkboxInput(inputId = "conceded_final",
+                                   label = "Final",
+                                   value = TRUE))
+                 )))),
       tabItem(
         tabName = "attend", tabsetPanel(type = "tabs", tabPanel(title = "Attendance over Time",
-        fluidRow(
-          # code for time series of attendance
-        )
-      ),
-      tabPanel(title = "Attendance and Goals",
-               fluidRow(
-                 # code for correlation matrix of attendance and total match goals
-               )))),
+                                                                fluidRow(
+                                                                  # code for attendance over time
+                                                                )
+        ),
+        tabPanel(title = "Attendance and Goals",
+                 fluidRow(
+                   # code for correlation matrix of attendance and total match goals
+                 )))),
       tabItem(
         tabName = "matches",
         fluidRow(
@@ -252,37 +380,37 @@ ui <- dashboardPage(
       tabItem(
         tabName = "goals",
         tabsetPanel(type = "tabs", tabPanel(title = "First versus Second Half",
-        fluidRow(
-          box(plotOutput(outputId = "first_second_scatterplot", height = "500px")),
-          box(
-            checkboxInput(inputId = "scatter_group",
-                          label = "Group Stage",
-                          value = TRUE),
-            checkboxInput(inputId = "scatter_ro16",
-                          label = "Round of 16",
-                          value = TRUE),
-            checkboxInput(inputId = "scatter_quarter",
-                          label = "Quarter-finals",
-                          value = TRUE),
-            checkboxInput(inputId = "scatter_semi",
-                          label = "Semi-finals",
-                          value = TRUE),
-            checkboxInput(inputId = "scatter_third",
-                          label = "Third Place",
-                          value = TRUE),
-            checkboxInput(inputId = "scatter_final",
-                          label = "Final",
-                          value = TRUE),
-            checkboxInput(inputId = "line",
-                          label = "Include trend lines",
-                          value = FALSE),
-            conditionalPanel(condition = "input.line == true",
-                             checkboxInput(inputId = "error_bars",
-                                           label = "Include error bars",
-                                           value = FALSE))
-          )
-        )),
-        tabPanel(title = "Distribution")) # add code for histogram of goals
+                                            fluidRow(
+                                              box(plotOutput(outputId = "first_second_scatterplot", height = "500px")),
+                                              box(
+                                                checkboxInput(inputId = "scatter_group",
+                                                              label = "Group Stage",
+                                                              value = TRUE),
+                                                checkboxInput(inputId = "scatter_ro16",
+                                                              label = "Round of 16",
+                                                              value = TRUE),
+                                                checkboxInput(inputId = "scatter_quarter",
+                                                              label = "Quarter-finals",
+                                                              value = TRUE),
+                                                checkboxInput(inputId = "scatter_semi",
+                                                              label = "Semi-finals",
+                                                              value = TRUE),
+                                                checkboxInput(inputId = "scatter_third",
+                                                              label = "Third Place",
+                                                              value = TRUE),
+                                                checkboxInput(inputId = "scatter_final",
+                                                              label = "Final",
+                                                              value = TRUE),
+                                                checkboxInput(inputId = "line",
+                                                              label = "Include trend lines",
+                                                              value = FALSE),
+                                                conditionalPanel(condition = "input.line == true",
+                                                                 checkboxInput(inputId = "error_bars",
+                                                                               label = "Include error bars",
+                                                                               value = FALSE))
+                                              )
+                                            )),
+                    tabPanel(title = "Distribution")) # add code for histogram of goals
       ),
       tabItem(
         tabName = "tournament",
