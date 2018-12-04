@@ -4,6 +4,7 @@ library(shinythemes)
 library(tidyverse)
 library(shinydashboard)
 library(countrycode)
+library(plotly)
 
 # read in data
 fifa <- read_csv(paste("https://storage.googleapis.com/kaggle-datasets/19728/29747/WorldCupMatches.csv",
@@ -20,6 +21,7 @@ project2_theme <- theme_bw() +
         rect = element_rect(color = "black"),
         text = element_text(size = 14, color = "black"),
         panel.background = element_rect(fill = "white"))
+col.pal <- c("blue", "plum", "yellow", "red", "orange", "gold")
 
 # preprocessing
 fifa$Stage <- ifelse(grepl("Group", fifa$Stage), "Group Stage", fifa$Stage)
@@ -178,6 +180,7 @@ server <- function(input, output) {
     if(!input$conceded_final) {
       goals_sub <- goals_sub[goals_sub$round != "Final",]
     }
+    homeCountries <- as.character(unique(goals_sub$homeCode))
     meanGoals <- c()
     for (country in homeCountries) {
       countryGoals <- goals %>% filter(homeCode == country)
@@ -250,7 +253,13 @@ server <- function(input, output) {
             y = "Second Half Goals",
             color = "Tournament Round"
           ) +
-          project2_theme
+          project2_theme +
+          scale_color_manual(values = c("Group Stage" = col.pal[1],
+                                        "Round of 16" = col.pal[2],
+                                        "Quarter-finals" = col.pal[3],
+                                        "Semi-finals" = col.pal[4],
+                                        "Third Place" = col.pal[5],
+                                        "Final" = col.pal[6]))
       } else {
         ggplot(data = goals_sub, aes(x = jitter(first),
                                      y = jitter(second),
@@ -263,7 +272,13 @@ server <- function(input, output) {
             y = "Second Half Goals",
             color = "Tournament Round"
           ) +
-          project2_theme
+          project2_theme +
+          scale_color_manual(values = c("Group Stage" = col.pal[1],
+                                        "Round of 16" = col.pal[2],
+                                        "Quarter-finals" = col.pal[3],
+                                        "Semi-finals" = col.pal[4],
+                                        "Third Place" = col.pal[5],
+                                        "Final" = col.pal[6]))
       }
     } else {
       ggplot(data = goals_sub, aes(x = jitter(first),
@@ -276,7 +291,13 @@ server <- function(input, output) {
           y = "Second Half Goals",
           color = "Tournament Round"
         ) +
-        project2_theme
+        project2_theme +
+        scale_color_manual(values = c("Group Stage" = col.pal[1],
+                                     "Round of 16" = col.pal[2],
+                                     "Quarter-finals" = col.pal[3],
+                                     "Semi-finals" = col.pal[4],
+                                     "Third Place" = col.pal[5],
+                                     "Final" = col.pal[6]))
     }
   })
   output$cor_mat_attendance_goals <- renderPlot({
@@ -314,7 +335,13 @@ server <- function(input, output) {
         fill = "Tournament Round"
       ) +
       project2_theme +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+      scale_fill_manual(values = c("Group Stage" = col.pal[1],
+                                    "Round of 16" = col.pal[2],
+                                    "Quarter-finals" = col.pal[3],
+                                    "Semi-finals" = col.pal[4],
+                                    "Third Place" = col.pal[5],
+                                    "Final" = col.pal[6]))
   })
 }
 
@@ -354,7 +381,7 @@ ui <- dashboardPage(
                                                                       checkboxInput(inputId = "scored_final",
                                                                                     label = "Final",
                                                                                     value = TRUE))
-                                                                  
+                                                                    
                                                                   )
         ),
         tabPanel(title = "Goals Conceded",
