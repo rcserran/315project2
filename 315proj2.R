@@ -64,6 +64,7 @@ goals <- data.frame(first = c(fifa$`Half-time Home Goals`, fifa$`Half-time Away 
                     round = c(fifa$Stage, fifa$Stage),
                     team = c(fifa$`Home Team Name`, fifa$`Away Team Name`),
                     year = c(fifa$Year, fifa$Year))
+
 goals$continent <- ifelse(goals$team %in% c("France", "Yugoslavia", "Romania",
                                             "Austria", "Hungary", "Switzerland",
                                             "Sweden", "Germany", "Spain",
@@ -122,6 +123,16 @@ server <- function(input, output) {
     if(!input$scored_final) {
       goals_sub <- goals_sub[goals_sub$round != "Final",]
     }
+    
+    homeCountries <- as.character(unique(goals_sub$homeCode))
+    meanGoals <- c()
+    for (country in homeCountries) {
+      countryGoals <- goals_sub %>% filter(homeCode == country)
+      meanGoals <- c(meanGoals, mean(countryGoals$homeGoals))
+    }
+    goalsScored <- data.frame(code = homeCountries,
+                              goal = meanGoals)
+    
     # light grey boundaries
     l <- list(color = toRGB("grey"), 
               width = 0.5)
@@ -135,17 +146,17 @@ server <- function(input, output) {
     
     l2 <- list(font = list(size = 4))
     
-    plot_geo(goals_sub) %>%
+    plot_geo(goalsScored) %>%
       add_trace(
-        z = ~homeGoals, color = ~homeGoals,
-        text = ~homeCode, locations = ~homeCode, marker = list(line = l)
+        z = ~goal, color = ~goal,
+        text = ~code, locations = ~code, marker = list(line = l)
       ) %>%
-      colorbar(title = 'Number of Goals') %>%
+      colorbar(title = 'Goals', thickness = 10) %>%
       layout(
-        title = 'Goals Scored by Home Team',
+        title = 'Mean Number of Goals Scored per Country',
         geo = g,
         legend = l2
-      ) 
+      )
   })
   output$map_goals_conceded <- renderPlotly({
     goals_sub <- goals
@@ -167,6 +178,14 @@ server <- function(input, output) {
     if(!input$conceded_final) {
       goals_sub <- goals_sub[goals_sub$round != "Final",]
     }
+    meanGoals <- c()
+    for (country in homeCountries) {
+      countryGoals <- goals %>% filter(homeCode == country)
+      meanGoals <- c(meanGoals, mean(countryGoals$awayGoals))
+    }
+    goalsConceded <- data.frame(code = homeCountries,
+                                goal = meanGoals)
+    
     # light grey boundaries
     l <- list(color = toRGB("grey"), 
               width = 0.5)
@@ -180,17 +199,17 @@ server <- function(input, output) {
     
     l2 <- list(font = list(size = 4))
     
-    plot_geo(goals_sub) %>%
+    plot_geo(goalsConceded) %>%
       add_trace(
-        z = ~awayGoals, color = ~awayGoals,
-        text = ~awayCode, locations = ~homeCode, marker = list(line = l)
+        z = ~goal, color = ~goal,
+        text = ~code, locations = ~code, marker = list(line = l)
       ) %>%
-      colorbar(title = 'Number of Goals') %>%
+      colorbar(title = 'Goals', thickness = 10) %>%
       layout(
-        title = 'Goals Scored by Away Team',
+        title = 'Mean Number of Goals Conceded per Country',
         geo = g,
         legend = l2
-      ) 
+      )
   })
   output$time_series_attendance <- renderPlot({
     # code for time series of attendance
@@ -315,7 +334,7 @@ ui <- dashboardPage(
       tabItem(
         tabName = "goal_map", tabsetPanel(type = "tabs", tabPanel(title = "Goals Scored",
                                                                   fluidRow(
-                                                                    box(plotOutput(outputId = "map_goals_scored", height = "500px")),
+                                                                    box(plotlyOutput(outputId = "map_goals_scored")),
                                                                     box(
                                                                       checkboxInput(inputId = "scored_group",
                                                                                     label = "Group Stage",
@@ -340,7 +359,7 @@ ui <- dashboardPage(
         ),
         tabPanel(title = "Goals Conceded",
                  fluidRow(
-                   box(plotOutput(outputId = "map_goals_conceded", height = "500px")),
+                   box(plotlyOutput(outputId = "map_goals_conceded")),
                    box(
                      checkboxInput(inputId = "conceded_group",
                                    label = "Group Stage",
