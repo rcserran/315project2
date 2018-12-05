@@ -5,15 +5,10 @@ library(tidyverse)
 library(shinydashboard)
 library(countrycode)
 library(plotly)
+library(dygraphs)
 
 # read in data
-fifa <- read_csv(paste("https://storage.googleapis.com/kaggle-datasets/19728/29747/WorldCupMatches.csv",
-                       "?GoogleAccessId=web-data@kaggle-161607.iam.gserviceaccount.com&Expires=15439484",
-                       "40&Signature=fQT7U3x7xLbn0G9v141DO5yNFmNloixUgZigiYcqu86PGZGwb192DB71gfa3x6LrxB",
-                       "UatqOsq%2Bz33orBvw3pNsWLfqL%2Bxg37gc5Sbl4%2BD%2BH0KMO8xn59XgSufLLxQ8zkmQ0d7z2KMM",
-                       "zZlu6dgHbAlmEWw7DyHaxVYrH6kPxTiLDJNCbYtgIJ8XXpUFCYM2o8ZRQnLvgcdNhY8CiubtE1ISoYKmS",
-                       "e2Ia6Uomc20IVpf2SD4tloYDrW7TLg6bR%2F7IcCvY3pYLT2Pl%2FfBjX03JhoODntvkSe3eELAkGL8BKF",
-                       "J6Me74ytJ4fwmPYkSUjoW5lBzBT2fyodljq7f4a9TIWUA%3D%3D", sep = ""))
+fifa <- read_csv("WorldCupMatches.csv")
 
 # project theme
 project2_theme <- theme_bw() +
@@ -214,8 +209,36 @@ server <- function(input, output) {
         legend = l2
       )
   })
-  output$time_series_attendance <- renderPlot({
+  output$time_series_attendance <- renderDygraph({
     # code for time series of attendance
+    attendance <- fifa[!is.na(fifa$Attendance),
+                       c("Year", "Stage", "Attendance")]
+    attndn_sub <- aggregate(attendance$Attendance,
+                            by = list(Stage = attendance$Stage,
+                                    Year = attendance$Year),
+                            FUN = mean)
+    if(!input$attndn_group) {
+      attndn_sub <- attndn_sub[attndn_sub$Stage != "Group Stage",]
+    }
+    if(!input$attndn_ro16) {
+      attndn_sub <- attndn_sub[attndn_sub$Stage != "Round of 16",]
+    }
+    if(!input$attndn_quarter) {
+      attndn_sub <- attndn_sub[attndn_sub$Stage != "Quarter-finals",]
+    }
+    if(!input$attndn_semi) {
+      attndn_sub <- attndn_sub[attndn_sub$Stage != "Semi-finals",]
+    }
+    if(!input$attndn_third) {
+      attndn_sub <- attndn_sub[attndn_sub$Stage != "Third Place",]
+    }
+    if(!input$attndn_final) {
+      attndn_sub <- attndn_sub[attndn_sub$Stage != "Final",]
+    }
+    attndn_sub <- aggregate(attndn_sub$x,
+                            by = list(Year = attndn_sub$Year),
+                            FUN = mean)
+    dygraph(attndn_sub, main = "Average World Cup Game Attendance")
   })
   output$network_teams_matches <- renderPlot({
     # code for network plot with teams as nodes and matches as edges
@@ -304,7 +327,38 @@ server <- function(input, output) {
     # code for correlation matrix of attendance and total match goals
   })
   output$hist_total_goals <- renderPlot({
-    # code for histogram of total match goals
+    goals_sub <- goals
+    if(!input$hist_group) {
+      goals_sub <- goals_sub[goals_sub$round != "Group Stage",]
+    }
+    if(!input$hist_ro16) {
+      goals_sub <- goals_sub[goals_sub$round != "Round of 16",]
+    }
+    if(!input$hist_quarter) {
+      goals_sub <- goals_sub[goals_sub$round != "Quarter-finals",]
+    }
+    if(!input$hist_semi) {
+      goals_sub <- goals_sub[goals_sub$round != "Semi-finals",]
+    }
+    if(!input$hist_third) {
+      goals_sub <- goals_sub[goals_sub$round != "Third Place",]
+    }
+    if(!input$hist_final) {
+      goals_sub <- goals_sub[goals_sub$round != "Final",]
+    }
+    ggplot(goals_sub, aes(x = total, fill = round)) +
+      geom_histogram() +
+      labs(title = "Total Goals in Match",
+           x = "total goals",
+           y = "frequency",
+           fill = "round") +
+      project2_theme +
+      scale_fill_manual(values = c("Group Stage" = col.pal[1],
+                                   "Round of 16" = col.pal[2],
+                                   "Quarter-finals" = col.pal[3],
+                                   "Semi-finals" = col.pal[4],
+                                   "Third Place" = col.pal[5],
+                                   "Final" = col.pal[6]))
   })
   output$bar_appearances <- renderPlot({
     goals_sub <- goals
@@ -408,10 +462,30 @@ ui <- dashboardPage(
                                    value = TRUE))
                  )))),
       tabItem(
-        tabName = "attend", tabsetPanel(type = "tabs", tabPanel(title = "Attendance over Time",
-                                                                fluidRow(
-                                                                  # code for attendance over time
-                                                                )
+        tabName = "attend", tabsetPanel(type = "tabs",
+                                        tabPanel(title = "Attendance over Time",
+                                        fluidRow(
+                                          box(dygraphOutput(outputId = "time_series_attendance")),
+                                          box(
+                                            checkboxInput(inputId = "attndn_group",
+                                                          label = "Group Stage",
+                                                          value = TRUE),
+                                            checkboxInput(inputId = "attndn_ro16",
+                                                          label = "Round of 16",
+                                                          value = TRUE),
+                                            checkboxInput(inputId = "attndn_quarter",
+                                                          label = "Quarter-finals",
+                                                          value = TRUE),
+                                            checkboxInput(inputId = "attndn_semi",
+                                                          label = "Semi-finals",
+                                                          value = TRUE),
+                                            checkboxInput(inputId = "attndn_third",
+                                                          label = "Third Place",
+                                                          value = TRUE),
+                                            checkboxInput(inputId = "attndn_final",
+                                                          label = "Final",
+                                                          value = TRUE))
+                                        )
         ),
         tabPanel(title = "Attendance and Goals",
                  fluidRow(
@@ -456,7 +530,30 @@ ui <- dashboardPage(
                                                                                value = FALSE))
                                               )
                                             )),
-                    tabPanel(title = "Distribution")) # add code for histogram of goals
+                    tabPanel(title = "Distribution",
+                             fluidRow(box(plotOutput(outputId = "hist_total_goals")),
+                                      box(
+                                        checkboxInput(inputId = "hist_group",
+                                                      label = "Group Stage",
+                                                      value = TRUE),
+                                        checkboxInput(inputId = "hist_ro16",
+                                                      label = "Round of 16",
+                                                      value = TRUE),
+                                        checkboxInput(inputId = "hist_quarter",
+                                                      label = "Quarter-finals",
+                                                      value = TRUE),
+                                        checkboxInput(inputId = "hist_semi",
+                                                      label = "Semi-finals",
+                                                      value = TRUE),
+                                        checkboxInput(inputId = "hist_third",
+                                                      label = "Third Place",
+                                                      value = TRUE),
+                                        checkboxInput(inputId = "hist_final",
+                                                      label = "Final",
+                                                      value = TRUE))
+                                      )
+                             )
+                    ) # add code for histogram of goals
       ),
       tabItem(
         tabName = "tournament",
