@@ -325,6 +325,49 @@ server <- function(input, output) {
   })
   output$cor_mat_attendance_goals <- renderPlot({
     # code for correlation matrix of attendance and total match goals
+    total <- fifa$`Home Team Goals` + fifa$`Away Team Goals`
+    fifa_t <- cbind(total, fifa)
+    is.na(fifa_t) <- sapply(fifa_t, is.infinite)
+    fifa_t[is.na(fifa_t)] <- 0
+    corr_sub <- fifa_t[,c("Attendance", "total", "Home Team Goals", "Away Team Goals")]
+    reorder_cormat <- function(cormat) {
+# Use correlation between variables as distance
+      dd <- as.dist((1-cormat)/2)
+      hc <- hclust(dd)
+      cormat <- cormat[hc$order, hc$order]
+    }    
+    
+    if(!input$corr_0) {
+      corr_sub <- corr_sub[corr_sub$total <= 2 & corr_sub$total >= 0,]
+    }
+    if(!input$corr_2) {
+      corr_sub <- corr_sub[corr_sub$total <= 4  & corr_sub$total > 2,]
+    }
+    if(!input$corr_4) {
+      corr_sub <- corr_sub[corr_sub$total <= 6 & corr_sub$total > 4,]
+    }
+    if(!input$corr_6) {
+      corr_sub <- corr_sub[corr_sub$total <= 8 & corr_sub$total > 6,]
+    }
+    if(!input$corr_8) {
+      corr_sub <- corr_sub[corr_sub$total <= 10 & corr_sub$total > 8,]
+    }
+    if(!input$corr_10) {
+      corr_sub <- corr_sub[corr_sub$total <= 12 & corr_sub$total > 10,]
+    }
+    cormat <- cor(corr_sub)
+    cormat <- reorder_cormat(cormat)
+    cormat[upper.tri(cormat)] <- NA
+    melted_cormat <- melt(cormat, na.rm = TRUE)
+    melted_cormat$value <- round(melted_cormat$value, 2)
+    
+    ggplot(data = melted_cormat, aes(x = Var1, y = Var2, fill = value)) + 
+      scale_fill_gradient2(low = "dark red", mid = "light grey", high = "dark blue",
+                           midpoint = 0, limit = c(-1,1)) + 
+      geom_tile() + 
+      geom_text(aes(label = value), color = "black", fontface = "bold") + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+      project2_theme 
   })
   output$hist_total_goals <- renderPlot({
     goals_sub <- goals
