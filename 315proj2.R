@@ -6,6 +6,7 @@ library(shinydashboard)
 library(countrycode)
 library(plotly)
 library(dygraphs)
+library(reshape2)
 
 # read in data
 fifa <- read_csv("https://raw.githubusercontent.com/rcserran/315project2/master/WorldCupMatches.csv")
@@ -19,7 +20,8 @@ project2_theme <- theme_bw() +
 col.pal <- c("blue", "plum", "yellow", "red", "orange", "gold")
 
 # preprocessing
-fifa$Stage <- ifelse(grepl("Group", fifa$Stage), "Group Stage", fifa$Stage)
+fifa$Stage <- ifelse(grepl("Group", fifa$Stage) | grepl("Preliminary", fifa$Stage),
+                     "Group Stage", fifa$Stage)
 fifa$Stage <- ifelse(fifa$Stage == "First round", "Group Stage", fifa$Stage)
 fifa$Stage <- ifelse(grepl("place", fifa$Stage), "Third Place", fifa$Stage)
 fifa <- fifa[fifa$Stage != "Preliminary round",]
@@ -240,8 +242,86 @@ server <- function(input, output) {
                             FUN = mean)
     dygraph(attndn_sub, main = "Average World Cup Game Attendance")
   })
-  output$network_teams_matches <- renderPlot({
-    # code for network plot with teams as nodes and matches as edges
+  output$winning_margin_round <- renderPlot({
+    fifa$margin <- abs(fifa$`Home Team Goals` - fifa$`Away Team Goals`)
+    fifa_sub <- fifa[fifa$Stage != "Preiliminary round",]
+    if(!input$wc1930) {
+      fifa_sub <- fifa[fifa$Year != 1930,]
+    }
+    if(!input$wc1934) {
+      fifa_sub <- fifa[fifa$Year != 1934,]
+    }
+    if(!input$wc1938) {
+      fifa_sub <- fifa[fifa$Year != 1938,]
+    }
+    if(!input$wc1950) {
+      fifa_sub <- fifa[fifa$Year != 1950,]
+    }
+    if(!input$wc1954) {
+      fifa_sub <- fifa[fifa$Year != 1954,]
+    }
+    if(!input$wc1958) {
+      fifa_sub <- fifa[fifa$Year != 1958,]
+    }
+    if(!input$wc1962) {
+      fifa_sub <- fifa[fifa$Year != 1962,]
+    }
+    if(!input$wc1966) {
+      fifa_sub <- fifa[fifa$Year != 1966,]
+    }
+    if(!input$wc1970) {
+      fifa_sub <- fifa[fifa$Year != 1970,]
+    }
+    if(!input$wc1974) {
+      fifa_sub <- fifa[fifa$Year != 1974,]
+    }
+    if(!input$wc1978) {
+      fifa_sub <- fifa[fifa$Year != 1978,]
+    }
+    if(!input$wc1982) {
+      fifa_sub <- fifa[fifa$Year != 1982,]
+    }
+    if(!input$wc1986) {
+      fifa_sub <- fifa[fifa$Year != 1986,]
+    }
+    if(!input$wc1990) {
+      fifa_sub <- fifa[fifa$Year != 1990,] 
+    }
+    if(!input$wc1994) {
+      fifa_sub <- fifa[fifa$Year != 1994,]
+    }
+    if(!input$wc1998) {
+      fifa_sub <- fifa[fifa$Year != 1998,]
+    }
+    if(!input$wc2002) {
+      fifa_sub <- fifa[fifa$Year != 2002,] 
+    }
+    if(!input$wc2006) {
+      fifa_sub <- fifa[fifa$Year != 2006,]
+    }
+    if(!input$wc2010) {
+      fifa_sub <- fifa[fifa$Year != 2010,]
+    }
+    if(!input$wc2014) {
+      fifa_sub <- fifa[fifa$Year != 2014,]
+    }
+    ggplot(data = fifa_sub, aes(x = Stage, y = margin,
+                                fill = Stage)) +
+      geom_boxplot() +
+      labs(
+        title = "Winning Margin by Round",
+        x = "Round",
+        y = "Winning Margin",
+        fill = "Round"
+      ) +
+      project2_theme +
+      scale_fill_manual(values = c("Group Stage" = col.pal[1],
+                                    "Round of 16" = col.pal[2],
+                                    "Quarter-finals" = col.pal[3],
+                                    "Semi-finals" = col.pal[4],
+                                    "Third Place" = col.pal[5],
+                                    "Final" = col.pal[6])) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
   })
   output$first_second_scatterplot <- renderPlot({
     goals_sub <- goals
@@ -331,29 +411,29 @@ server <- function(input, output) {
     fifa_t[is.na(fifa_t)] <- 0
     corr_sub <- fifa_t[,c("Attendance", "total", "Home Team Goals", "Away Team Goals")]
     reorder_cormat <- function(cormat) {
-# Use correlation between variables as distance
+      # Use correlation between variables as distance
       dd <- as.dist((1-cormat)/2)
       hc <- hclust(dd)
       cormat <- cormat[hc$order, hc$order]
     }    
     
     if(!input$corr_0) {
-      corr_sub <- corr_sub[corr_sub$total <= 2 & corr_sub$total >= 0,]
+      corr_sub <- corr_sub[corr_sub$total != 0 & corr_sub$total != 1,]
     }
     if(!input$corr_2) {
-      corr_sub <- corr_sub[corr_sub$total <= 4  & corr_sub$total > 2,]
+      corr_sub <- corr_sub[corr_sub$total != 3 & corr_sub$total != 4,]
     }
     if(!input$corr_4) {
-      corr_sub <- corr_sub[corr_sub$total <= 6 & corr_sub$total > 4,]
+      corr_sub <- corr_sub[corr_sub$total != 5 & corr_sub$total != 6,]
     }
     if(!input$corr_6) {
-      corr_sub <- corr_sub[corr_sub$total <= 8 & corr_sub$total > 6,]
+      corr_sub <- corr_sub[corr_sub$total != 7 & corr_sub$total != 8,]
     }
     if(!input$corr_8) {
-      corr_sub <- corr_sub[corr_sub$total <= 10 & corr_sub$total > 8,]
+      corr_sub <- corr_sub[corr_sub$total != 9 & corr_sub$total != 10,]
     }
     if(!input$corr_10) {
-      corr_sub <- corr_sub[corr_sub$total <= 12 & corr_sub$total > 10,]
+      corr_sub <- corr_sub[corr_sub$total != 11 & corr_sub$total != 12,]
     }
     cormat <- cor(corr_sub)
     cormat <- reorder_cormat(cormat)
@@ -365,9 +445,15 @@ server <- function(input, output) {
       scale_fill_gradient2(low = "dark red", mid = "light grey", high = "dark blue",
                            midpoint = 0, limit = c(-1,1)) + 
       geom_tile() + 
-      geom_text(aes(label = value), color = "black", fontface = "bold") + 
-      theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-      project2_theme 
+      labs(
+        title = "Correlations",
+        x = "",
+        y = "",
+        fill = "Correlation"
+      ) +
+      geom_text(aes(label = value), color = "black", fontface = "bold") +
+      project2_theme +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
   })
   output$hist_total_goals <- renderPlot({
     goals_sub <- goals
@@ -531,32 +617,93 @@ ui <- dashboardPage(
                                                  )
                                         ),
                                         tabPanel(title = "Attendance and Goals",
-                                                 fluidRow(box(plotlyOutput(outputId = "cor_mat_attendance_goals")),
-                                                   box(
-                                                     checkboxInput(inputId = "corr_0",
-                                                                   label = "0-2 Goals",
-                                                                   value = TRUE),
-                                                     checkboxInput(inputId = "corr_2",
-                                                                   label = "3-4 Goals",
-                                                                   value = TRUE),
-                                                     checkboxInput(inputId = "corr_4",
-                                                                   label = "5-6 Goals",
-                                                                   value = TRUE),
-                                                     checkboxInput(inputId = "corr_6",
-                                                                   label = "7-8 Goals",
-                                                                   value = TRUE),
-                                                     checkboxInput(inputId = "corr_8",
-                                                                   label = "9-10 Goals",
-                                                                   value = TRUE),
-                                                     checkboxInput(inputId = "corr_10",
-                                                                   label = "11-12 Goals",
-                                                                   value = TRUE))
-                                                   # code for correlation matrix of attendance and total match goals
+                                                 fluidRow(box(plotOutput(outputId = "cor_mat_attendance_goals")),
+                                                          box(
+                                                            checkboxInput(inputId = "corr_0",
+                                                                          label = "0-2 Goals",
+                                                                          value = TRUE),
+                                                            checkboxInput(inputId = "corr_2",
+                                                                          label = "3-4 Goals",
+                                                                          value = TRUE),
+                                                            checkboxInput(inputId = "corr_4",
+                                                                          label = "5-6 Goals",
+                                                                          value = TRUE),
+                                                            checkboxInput(inputId = "corr_6",
+                                                                          label = "7-8 Goals",
+                                                                          value = TRUE),
+                                                            checkboxInput(inputId = "corr_8",
+                                                                          label = "9-10 Goals",
+                                                                          value = TRUE),
+                                                            checkboxInput(inputId = "corr_10",
+                                                                          label = "11-12 Goals",
+                                                                          value = TRUE))
                                                  )))),
       tabItem(
         tabName = "matches",
         fluidRow(
-          # code for network plot with nodes as teams and edges as matches
+          box(plotOutput(outputId = "winning_margin_round", height = "500px")),
+          box(
+            checkboxInput(inputId = "wc1930",
+                          label = "1930",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1934",
+                          label = "1934",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1938",
+                          label = "1938",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1950",
+                          label = "1950",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1954",
+                          label = "1954",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1958",
+                          label = "1958",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1962",
+                          label = "1962",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1966",
+                          label = "1966",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1970",
+                          label = "1970",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1974",
+                          label = "1974",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1978",
+                          label = "1978",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1982",
+                          label = "1982",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1986",
+                          label = "1986",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1990",
+                          label = "1990",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1994",
+                          label = "1994",
+                          value = TRUE),
+            checkboxInput(inputId = "wc1998",
+                          label = "1998",
+                          value = TRUE),
+            checkboxInput(inputId = "wc2002",
+                          label = "2002",
+                          value = TRUE),
+            checkboxInput(inputId = "wc2006",
+                          label = "2006",
+                          value = TRUE),
+            checkboxInput(inputId = "wc2010",
+                          label = "2010",
+                          value = TRUE),
+            checkboxInput(inputId = "wc2014",
+                          label = "2014",
+                          value = TRUE)
+          )
         )
       ),
       tabItem(
