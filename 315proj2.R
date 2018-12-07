@@ -5,10 +5,9 @@ library(tidyverse)
 library(shinydashboard)
 library(countrycode)
 library(plotly)
-library(dygraphs)
 
 # read in data
-fifa <- read_csv("WorldCupMatches.csv")
+fifa <- read_csv("https://raw.githubusercontent.com/rcserran/315project2/master/WorldCupMatches.csv")
 
 # project theme
 project2_theme <- theme_bw() +
@@ -215,7 +214,7 @@ server <- function(input, output) {
                        c("Year", "Stage", "Attendance")]
     attndn_sub <- aggregate(attendance$Attendance,
                             by = list(Stage = attendance$Stage,
-                                    Year = attendance$Year),
+                                      Year = attendance$Year),
                             FUN = mean)
     if(!input$attndn_group) {
       attndn_sub <- attndn_sub[attndn_sub$Stage != "Group Stage",]
@@ -316,11 +315,11 @@ server <- function(input, output) {
         ) +
         project2_theme +
         scale_color_manual(values = c("Group Stage" = col.pal[1],
-                                     "Round of 16" = col.pal[2],
-                                     "Quarter-finals" = col.pal[3],
-                                     "Semi-finals" = col.pal[4],
-                                     "Third Place" = col.pal[5],
-                                     "Final" = col.pal[6]))
+                                      "Round of 16" = col.pal[2],
+                                      "Quarter-finals" = col.pal[3],
+                                      "Semi-finals" = col.pal[4],
+                                      "Third Place" = col.pal[5],
+                                      "Final" = col.pal[6]))
     }
   })
   output$cor_mat_attendance_goals <- renderPlot({
@@ -347,7 +346,7 @@ server <- function(input, output) {
       goals_sub <- goals_sub[goals_sub$round != "Final",]
     }
     ggplot(goals_sub, aes(x = total, fill = round)) +
-      geom_histogram() +
+      geom_histogram(binwidth = 1) +
       labs(title = "Total Goals in Match",
            x = "total goals",
            y = "frequency",
@@ -391,11 +390,11 @@ server <- function(input, output) {
       project2_theme +
       theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
       scale_fill_manual(values = c("Group Stage" = col.pal[1],
-                                    "Round of 16" = col.pal[2],
-                                    "Quarter-finals" = col.pal[3],
-                                    "Semi-finals" = col.pal[4],
-                                    "Third Place" = col.pal[5],
-                                    "Final" = col.pal[6]))
+                                   "Round of 16" = col.pal[2],
+                                   "Quarter-finals" = col.pal[3],
+                                   "Semi-finals" = col.pal[4],
+                                   "Third Place" = col.pal[5],
+                                   "Final" = col.pal[6]))
   })
 }
 
@@ -464,33 +463,33 @@ ui <- dashboardPage(
       tabItem(
         tabName = "attend", tabsetPanel(type = "tabs",
                                         tabPanel(title = "Attendance over Time",
-                                        fluidRow(
-                                          box(dygraphOutput(outputId = "time_series_attendance")),
-                                          box(
-                                            checkboxInput(inputId = "attndn_group",
-                                                          label = "Group Stage",
-                                                          value = TRUE),
-                                            checkboxInput(inputId = "attndn_ro16",
-                                                          label = "Round of 16",
-                                                          value = TRUE),
-                                            checkboxInput(inputId = "attndn_quarter",
-                                                          label = "Quarter-finals",
-                                                          value = TRUE),
-                                            checkboxInput(inputId = "attndn_semi",
-                                                          label = "Semi-finals",
-                                                          value = TRUE),
-                                            checkboxInput(inputId = "attndn_third",
-                                                          label = "Third Place",
-                                                          value = TRUE),
-                                            checkboxInput(inputId = "attndn_final",
-                                                          label = "Final",
-                                                          value = TRUE))
-                                        )
-        ),
-        tabPanel(title = "Attendance and Goals",
-                 fluidRow(
-                   # code for correlation matrix of attendance and total match goals
-                 )))),
+                                                 fluidRow(
+                                                   box(dygraphOutput(outputId = "time_series_attendance")),
+                                                   box(
+                                                     checkboxInput(inputId = "attndn_group",
+                                                                   label = "Group Stage",
+                                                                   value = TRUE),
+                                                     checkboxInput(inputId = "attndn_ro16",
+                                                                   label = "Round of 16",
+                                                                   value = TRUE),
+                                                     checkboxInput(inputId = "attndn_quarter",
+                                                                   label = "Quarter-finals",
+                                                                   value = TRUE),
+                                                     checkboxInput(inputId = "attndn_semi",
+                                                                   label = "Semi-finals",
+                                                                   value = TRUE),
+                                                     checkboxInput(inputId = "attndn_third",
+                                                                   label = "Third Place",
+                                                                   value = TRUE),
+                                                     checkboxInput(inputId = "attndn_final",
+                                                                   label = "Final",
+                                                                   value = TRUE))
+                                                 )
+                                        ),
+                                        tabPanel(title = "Attendance and Goals",
+                                                 fluidRow(
+                                                   # code for correlation matrix of attendance and total match goals
+                                                 )))),
       tabItem(
         tabName = "matches",
         fluidRow(
@@ -551,9 +550,9 @@ ui <- dashboardPage(
                                         checkboxInput(inputId = "hist_final",
                                                       label = "Final",
                                                       value = TRUE))
-                                      )
                              )
-                    ) # add code for histogram of goals
+                    )
+        ) # add code for histogram of goals
       ),
       tabItem(
         tabName = "tournament",
