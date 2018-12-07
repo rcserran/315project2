@@ -531,7 +531,26 @@ ui <- dashboardPage(
                                                  )
                                         ),
                                         tabPanel(title = "Attendance and Goals",
-                                                 fluidRow(
+                                                 fluidRow(box(plotlyOutput(outputId = "cor_mat_attendance_goals")),
+                                                   box(
+                                                     checkboxInput(inputId = "corr_0",
+                                                                   label = "0-2 Goals",
+                                                                   value = TRUE),
+                                                     checkboxInput(inputId = "corr_2",
+                                                                   label = "3-4 Goals",
+                                                                   value = TRUE),
+                                                     checkboxInput(inputId = "corr_4",
+                                                                   label = "5-6 Goals",
+                                                                   value = TRUE),
+                                                     checkboxInput(inputId = "corr_6",
+                                                                   label = "7-8 Goals",
+                                                                   value = TRUE),
+                                                     checkboxInput(inputId = "corr_8",
+                                                                   label = "9-10 Goals",
+                                                                   value = TRUE),
+                                                     checkboxInput(inputId = "corr_10",
+                                                                   label = "11-12 Goals",
+                                                                   value = TRUE))
                                                    # code for correlation matrix of attendance and total match goals
                                                  )))),
       tabItem(
