@@ -5,6 +5,7 @@ library(tidyverse)
 library(shinydashboard)
 library(countrycode)
 library(plotly)
+library(dygraphs)
 
 # read in data
 fifa <- read_csv("https://raw.githubusercontent.com/rcserran/315project2/master/WorldCupMatches.csv")
