@@ -1,6 +1,5 @@
 # load libraries
 library(shiny)
-library(shinythemes)
 library(tidyverse)
 library(shinydashboard)
 library(countrycode)
@@ -316,11 +315,11 @@ server <- function(input, output) {
       ) +
       project2_theme +
       scale_fill_manual(values = c("Group Stage" = col.pal[1],
-                                    "Round of 16" = col.pal[2],
-                                    "Quarter-finals" = col.pal[3],
-                                    "Semi-finals" = col.pal[4],
-                                    "Third Place" = col.pal[5],
-                                    "Final" = col.pal[6])) +
+                                   "Round of 16" = col.pal[2],
+                                   "Quarter-finals" = col.pal[3],
+                                   "Semi-finals" = col.pal[4],
+                                   "Third Place" = col.pal[5],
+                                   "Final" = col.pal[6])) +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
   })
   output$first_second_scatterplot <- renderPlot({
@@ -436,14 +435,12 @@ server <- function(input, output) {
       corr_sub <- corr_sub[corr_sub$total != 11 & corr_sub$total != 12,]
     }
     cormat <- cor(corr_sub)
-    cormat <- reorder_cormat(cormat)
+    #cormat <- reorder_cormat(cormat)
     cormat[upper.tri(cormat)] <- NA
     melted_cormat <- melt(cormat, na.rm = TRUE)
     melted_cormat$value <- round(melted_cormat$value, 2)
     
     ggplot(data = melted_cormat, aes(x = Var1, y = Var2, fill = value)) + 
-      scale_fill_gradient2(low = "dark red", mid = "light grey", high = "dark blue",
-                           midpoint = 0, limit = c(-1,1)) + 
       geom_tile() + 
       labs(
         title = "Correlations",
@@ -453,7 +450,9 @@ server <- function(input, output) {
       ) +
       geom_text(aes(label = value), color = "black", fontface = "bold") +
       project2_theme +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+      scale_fill_gradient2(low = "orange", mid = "ivory", high = "blue",
+                           midpoint = 0, limit = c(-1,1))
   })
   output$hist_total_goals <- renderPlot({
     goals_sub <- goals
@@ -529,6 +528,7 @@ server <- function(input, output) {
 }
 
 ui <- dashboardPage(
+  skin = "green",
   dashboardHeader(title = "FIFA World Cup Matches"),
   dashboardSidebar(
     sidebarMenu(
@@ -643,66 +643,68 @@ ui <- dashboardPage(
         fluidRow(
           box(plotOutput(outputId = "winning_margin_round", height = "500px")),
           box(
-            checkboxInput(inputId = "wc1930",
-                          label = "1930",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1934",
-                          label = "1934",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1938",
-                          label = "1938",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1950",
-                          label = "1950",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1954",
-                          label = "1954",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1958",
-                          label = "1958",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1962",
-                          label = "1962",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1966",
-                          label = "1966",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1970",
-                          label = "1970",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1974",
-                          label = "1974",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1978",
-                          label = "1978",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1982",
-                          label = "1982",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1986",
-                          label = "1986",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1990",
-                          label = "1990",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1994",
-                          label = "1994",
-                          value = TRUE),
-            checkboxInput(inputId = "wc1998",
-                          label = "1998",
-                          value = TRUE),
-            checkboxInput(inputId = "wc2002",
-                          label = "2002",
-                          value = TRUE),
-            checkboxInput(inputId = "wc2006",
-                          label = "2006",
-                          value = TRUE),
-            checkboxInput(inputId = "wc2010",
-                          label = "2010",
-                          value = TRUE),
-            checkboxInput(inputId = "wc2014",
-                          label = "2014",
-                          value = TRUE)
+            column(width = 6,
+                   checkboxInput(inputId = "wc1930",
+                                 label = "1930",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1934",
+                                 label = "1934",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1938",
+                                 label = "1938",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1950",
+                                 label = "1950",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1954",
+                                 label = "1954",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1958",
+                                 label = "1958",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1962",
+                                 label = "1962",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1966",
+                                 label = "1966",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1970",
+                                 label = "1970",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1974",
+                                 label = "1974",
+                                 value = TRUE)),
+            column(width = 6,
+                   checkboxInput(inputId = "wc1978",
+                                 label = "1978",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1982",
+                                 label = "1982",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1986",
+                                 label = "1986",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1990",
+                                 label = "1990",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1994",
+                                 label = "1994",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc1998",
+                                 label = "1998",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc2002",
+                                 label = "2002",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc2006",
+                                 label = "2006",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc2010",
+                                 label = "2010",
+                                 value = TRUE),
+                   checkboxInput(inputId = "wc2014",
+                                 label = "2014",
+                                 value = TRUE))
           )
         )
       ),
