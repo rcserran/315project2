@@ -193,11 +193,27 @@ server <- function(input, output) {
     goalsConceded <- data.frame(code = homeCountries,
                                 goal = meanGoals)
     goalsConceded$code <- as.character(goalsConceded$code)
+    
+    isos = codelist$iso3c
+    isos = isos[!is.na(isos)]
     for (a in isos) {
       if (!(a %in% goalsConceded$code)) {
         goalsConceded = rbind(goalsConceded, c(a, 0))
       }
     }
+    
+    # light grey boundaries
+    l <- list(color = toRGB("grey"), 
+              width = 0.5)
+    
+    # specify map projection/options
+    g <- list(
+      showframe = FALSE,
+      showcoastlines = FALSE,
+      projection = list(type = 'Mercator')
+    )
+    
+    l2 <- list(font = list(size = 4))
     
     plot_geo(goalsConceded, zmin = 0, zmax = 7) %>%
       add_trace(
