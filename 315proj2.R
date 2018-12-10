@@ -130,6 +130,14 @@ server <- function(input, output) {
     }
     goalsScored <- data.frame(code = homeCountries,
                               goal = meanGoals)
+    goalsScored$code <- as.character(goalsScored$code)
+    isos = codelist$iso3c
+    isos = isos[!is.na(isos)]
+    for (a in isos) {
+      if (!(a %in% goalsScored$code)) {
+        goalsScored = rbind(goalsScored, c(a, 0))
+      }
+    }
     
     # light grey boundaries
     l <- list(color = toRGB("grey"), 
@@ -144,14 +152,14 @@ server <- function(input, output) {
     
     l2 <- list(font = list(size = 4))
     
-    plot_geo(goalsScored) %>%
+    plot_geo(goalsScored, zmin = 0, zmax = 5) %>%
       add_trace(
         z = ~goal, color = ~goal,
         text = ~code, locations = ~code, marker = list(line = l)
       ) %>%
       colorbar(title = 'Goals', thickness = 10) %>%
       layout(
-        title = 'Mean Number of Goals Scored per Country',
+        title = 'Mean Number of Goals Scored by Country',
         geo = g,
         legend = l2
       )
@@ -184,28 +192,21 @@ server <- function(input, output) {
     }
     goalsConceded <- data.frame(code = homeCountries,
                                 goal = meanGoals)
+    goalsConceded$code <- as.character(goalsConceded$code)
+    for (a in isos) {
+      if (!(a %in% goalsConceded$code)) {
+        goalsConceded = rbind(goalsConceded, c(a, 0))
+      }
+    }
     
-    # light grey boundaries
-    l <- list(color = toRGB("grey"), 
-              width = 0.5)
-    
-    # specify map projection/options
-    g <- list(
-      showframe = FALSE,
-      showcoastlines = FALSE,
-      projection = list(type = 'Mercator')
-    )
-    
-    l2 <- list(font = list(size = 4))
-    
-    plot_geo(goalsConceded) %>%
+    plot_geo(goalsConceded, zmin = 0, zmax = 7) %>%
       add_trace(
         z = ~goal, color = ~goal,
         text = ~code, locations = ~code, marker = list(line = l)
       ) %>%
       colorbar(title = 'Goals', thickness = 10) %>%
       layout(
-        title = 'Mean Number of Goals Conceded per Country',
+        title = 'Mean Number of Goals Against by Country',
         geo = g,
         legend = l2
       )
