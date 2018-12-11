@@ -424,6 +424,8 @@ server <- function(input, output) {
     is.na(fifa_t) <- sapply(fifa_t, is.infinite)
     fifa_t[is.na(fifa_t)] <- 0
     corr_sub <- fifa_t[,c("Attendance", "total", "Home Team Goals", "Away Team Goals")]
+    corr_sub$`Total Goals` <- corr_sub$total
+    corr_sub$total <- NULL
     reorder_cormat <- function(cormat) {
       # Use correlation between variables as distance
       dd <- as.dist((1-cormat)/2)
@@ -432,22 +434,22 @@ server <- function(input, output) {
     }    
     
     if(!input$corr_0) {
-      corr_sub <- corr_sub[corr_sub$total != 0 & corr_sub$total != 1,]
+      corr_sub <- corr_sub[corr_sub$`Total Goals` != 0 & corr_sub$`Total Goals` != 1,]
     }
     if(!input$corr_2) {
-      corr_sub <- corr_sub[corr_sub$total != 3 & corr_sub$total != 4,]
+      corr_sub <- corr_sub[corr_sub$`Total Goals` != 3 & corr_sub$`Total Goals` != 4,]
     }
     if(!input$corr_4) {
-      corr_sub <- corr_sub[corr_sub$total != 5 & corr_sub$total != 6,]
+      corr_sub <- corr_sub[corr_sub$`Total Goals` != 5 & corr_sub$`Total Goals` != 6,]
     }
     if(!input$corr_6) {
-      corr_sub <- corr_sub[corr_sub$total != 7 & corr_sub$total != 8,]
+      corr_sub <- corr_sub[corr_sub$`Total Goals` != 7 & corr_sub$`Total Goals` != 8,]
     }
     if(!input$corr_8) {
-      corr_sub <- corr_sub[corr_sub$total != 9 & corr_sub$total != 10,]
+      corr_sub <- corr_sub[corr_sub$`Total Goals` != 9 & corr_sub$`Total Goals` != 10,]
     }
     if(!input$corr_10) {
-      corr_sub <- corr_sub[corr_sub$total != 11 & corr_sub$total != 12,]
+      corr_sub <- corr_sub[corr_sub$`Total Goals` != 11 & corr_sub$`Total Goals` != 12,]
     }
     cormat <- cor(corr_sub)
     #cormat <- reorder_cormat(cormat)
