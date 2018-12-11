@@ -253,7 +253,8 @@ server <- function(input, output) {
                             by = list(Year = attendance$Year),
                             FUN = mean)
     dygraph(attndn_agg, main = "Average World Cup Game Attendance") %>%
-      dyAxis("y", valueRange = c(0, 135000))
+      dyAxis("y", valueRange = c(0, 135000), label = "Average Attendance") %>%
+      dyAxis("x", label = "Year")
   })
   output$winning_margin_round <- renderPlot({
     fifa$margin <- abs(fifa$`Home Team Goals` - fifa$`Away Team Goals`)
@@ -323,9 +324,9 @@ server <- function(input, output) {
       geom_boxplot() +
       labs(
         title = "Winning Margin by Round",
-        x = "Round",
+        x = "Tournament Round",
         y = "Winning Margin",
-        fill = "Round"
+        fill = "Tournament Round"
       ) +
       project2_theme +
       scale_fill_manual(values = c("Group Stage" = col.pal[1],
@@ -491,16 +492,17 @@ server <- function(input, output) {
     ggplot(goals_sub, aes(x = total, fill = round)) +
       geom_histogram(binwidth = 1) +
       labs(title = "Total Goals in Match",
-           x = "total goals",
-           y = "frequency",
-           fill = "round") +
+           x = "Total Goals",
+           y = "Frequency",
+           fill = "Tournament Round") +
       project2_theme +
       scale_fill_manual(values = c("Group Stage" = col.pal[1],
                                    "Round of 16" = col.pal[2],
                                    "Quarter-finals" = col.pal[3],
                                    "Semi-finals" = col.pal[4],
                                    "Third Place" = col.pal[5],
-                                   "Final" = col.pal[6]))
+                                   "Final" = col.pal[6])) +
+      scale_x_continuous(limits = c(0, max(goals$total)))
   })
   output$bar_appearances <- renderPlot({
     goals_sub <- goals
