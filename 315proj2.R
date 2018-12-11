@@ -261,64 +261,64 @@ server <- function(input, output) {
   output$winning_margin_round <- renderPlot({
     fifa$margin <- abs(fifa$`Home Team Goals` - fifa$`Away Team Goals`)
     fifa_sub <- fifa[fifa$Stage != "Preiliminary round",]
-    if(!input$wc1930) {
+    if("wc1930" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1930,]
     }
-    if(!input$wc1934) {
+    if("wc1934" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1934,]
     }
-    if(!input$wc1938) {
+    if("wc1938" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1938,]
     }
-    if(!input$wc1950) {
+    if("wc1950" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1950,]
     }
-    if(!input$wc1954) {
+    if("wc1954" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1954,]
     }
-    if(!input$wc1958) {
+    if("wc1958" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1958,]
     }
-    if(!input$wc1962) {
+    if("wc1962" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1962,]
     }
-    if(!input$wc1966) {
+    if("wc1966" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1966,]
     }
-    if(!input$wc1970) {
+    if("wc1970" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1970,]
     }
-    if(!input$wc1974) {
+    if("wc1974" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1974,]
     }
-    if(!input$wc1978) {
+    if("wc1978" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1978,]
     }
-    if(!input$wc1982) {
+    if("wc1982" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1982,]
     }
-    if(!input$wc1986) {
+    if("wc1986" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1986,]
     }
-    if(!input$wc1990) {
+    if("wc1990" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1990,] 
     }
-    if(!input$wc1994) {
+    if("wc1994" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1994,]
     }
-    if(!input$wc1998) {
+    if("wc1998" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 1998,]
     }
-    if(!input$wc2002) {
+    if("wc2002" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 2002,] 
     }
-    if(!input$wc2006) {
+    if("wc2006" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 2006,]
     }
-    if(!input$wc2010) {
+    if("wc2010" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 2010,]
     }
-    if(!input$wc2014) {
+    if("wc2014" %in% input$years) {
       fifa_sub <- fifa[fifa$Year != 2014,]
     }
     ggplot(data = fifa_sub, aes(x = Stage, y = margin,
@@ -660,68 +660,28 @@ ui <- dashboardPage(
         fluidRow(
           box(plotOutput(outputId = "winning_margin_round", height = "500px")),
           box(
-            column(width = 6,
-                   checkboxInput(inputId = "wc1930",
-                                 label = "1930",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1934",
-                                 label = "1934",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1938",
-                                 label = "1938",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1950",
-                                 label = "1950",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1954",
-                                 label = "1954",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1958",
-                                 label = "1958",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1962",
-                                 label = "1962",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1966",
-                                 label = "1966",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1970",
-                                 label = "1970",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1974",
-                                 label = "1974",
-                                 value = TRUE)),
-            column(width = 6,
-                   checkboxInput(inputId = "wc1978",
-                                 label = "1978",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1982",
-                                 label = "1982",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1986",
-                                 label = "1986",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1990",
-                                 label = "1990",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1994",
-                                 label = "1994",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc1998",
-                                 label = "1998",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc2002",
-                                 label = "2002",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc2006",
-                                 label = "2006",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc2010",
-                                 label = "2010",
-                                 value = TRUE),
-                   checkboxInput(inputId = "wc2014",
-                                 label = "2014",
-                                 value = TRUE))
+            selectInput("years", "Select years",
+                        c("1930" = "wc1930",
+                          "1934" = "wc1934",
+                          "1938" = "wc1938",
+                          "1950" = "wc1950",
+                          "1954" = "wc1954",
+                          "1958" = "wc1958",
+                          "1962" = "wc1962",
+                          "1966" = "wc1966",
+                          "1970" = "wc1970",
+                          "1974" = "wc1974",
+                          "1978" = "wc1978",
+                          "1982" = "wc1982",
+                          "1986" = "wc1986",
+                          "1990" = "wc1990",
+                          "1994" = "wc1994",
+                          "1998" = "wc1998",
+                          "2002" = "wc2002",
+                          "2006" = "wc2006",
+                          "2010" = "wc2010",
+                          "2014" = "wc2014"),
+                        multiple = TRUE)
           )
         )
       ),
