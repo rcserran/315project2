@@ -584,7 +584,7 @@ ui <- dashboardPage(
                                                                     
                                                                   )
         ),
-        tabPanel(title = "Goals Conceded",
+        tabPanel(title = "Goals Against",
                  fluidRow(
                    box(plotlyOutput(outputId = "map_goals_conceded")),
                    box(
