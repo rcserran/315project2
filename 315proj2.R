@@ -135,7 +135,7 @@ server <- function(input, output) {
     isos = isos[!is.na(isos)]
     for (a in isos) {
       if (!(a %in% goalsScored$code)) {
-        goalsScored = rbind(goalsScored, c(a, 0))
+        goalsScored = rbind(goalsScored, c(a, NaN))
       }
     }
     
@@ -198,7 +198,7 @@ server <- function(input, output) {
     isos = isos[!is.na(isos)]
     for (a in isos) {
       if (!(a %in% goalsConceded$code)) {
-        goalsConceded = rbind(goalsConceded, c(a, 0))
+        goalsConceded = rbind(goalsConceded, c(a, NaN))
       }
     }
     
