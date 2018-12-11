@@ -231,32 +231,29 @@ server <- function(input, output) {
     # code for time series of attendance
     attendance <- fifa[!is.na(fifa$Attendance),
                        c("Year", "Stage", "Attendance")]
-    attndn_sub <- aggregate(attendance$Attendance,
-                            by = list(Stage = attendance$Stage,
-                                      Year = attendance$Year),
-                            FUN = mean)
     if(!input$attndn_group) {
-      attndn_sub <- attndn_sub[attndn_sub$Stage != "Group Stage",]
+      attendance <- attendance[attendance$Stage != "Group Stage",]
     }
     if(!input$attndn_ro16) {
-      attndn_sub <- attndn_sub[attndn_sub$Stage != "Round of 16",]
+      attendance <- attendance[attendance$Stage != "Round of 16",]
     }
     if(!input$attndn_quarter) {
-      attndn_sub <- attndn_sub[attndn_sub$Stage != "Quarter-finals",]
+      attendance <- attendance[attendance$Stage != "Quarter-finals",]
     }
     if(!input$attndn_semi) {
-      attndn_sub <- attndn_sub[attndn_sub$Stage != "Semi-finals",]
+      attendance <- attendance[attendance$Stage != "Semi-finals",]
     }
     if(!input$attndn_third) {
-      attndn_sub <- attndn_sub[attndn_sub$Stage != "Third Place",]
+      attendance <- attendance[attendance$Stage != "Third Place",]
     }
     if(!input$attndn_final) {
-      attndn_sub <- attndn_sub[attndn_sub$Stage != "Final",]
+      attendance <- attendance[attendance$Stage != "Final",]
     }
-    attndn_sub <- aggregate(attndn_sub$x,
-                            by = list(Year = attndn_sub$Year),
+    attndn_agg <- aggregate(attendance$Attendance,
+                            by = list(Year = attendance$Year),
                             FUN = mean)
-    dygraph(attndn_sub, main = "Average World Cup Game Attendance")
+    dygraph(attndn_agg, main = "Average World Cup Game Attendance") %>%
+      dyAxis("y", valueRange = c(0, 135000))
   })
   output$winning_margin_round <- renderPlot({
     fifa$margin <- abs(fifa$`Home Team Goals` - fifa$`Away Team Goals`)
